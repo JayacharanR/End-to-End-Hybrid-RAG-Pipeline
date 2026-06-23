@@ -9,3 +9,9 @@ wheels/
 # Virtual environments
 .venv
 .agents/
+
+#environment variables
+.env
+
+#todo
+todo.md

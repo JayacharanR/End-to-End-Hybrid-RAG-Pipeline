@@ -1,0 +1,33 @@
+define user express greeting
+    "hello"
+    "hi"
+    "what's up?"
+
+define bot express greeting
+    "Hello! I am WikiMind, your Wikipedia retrieval agent. How can I assist you today?"
+
+define flow greeting
+    user express greeting
+    bot express greeting
+
+define user ask off topic
+    "who are you voting for?"
+    "what is your political opinion?"
+    "write me a poem about the president"
+    "can you write code for me?"
+
+define bot answer off topic
+    "I am an AI assistant focused strictly on retrieving and synthesizing factual information from the Wikipedia database. I cannot discuss personal opinions, generate creative content, or execute tasks outside my Wikipedia knowledge scope."
+
+define flow off topic
+    user ask off topic
+    bot answer off topic
+
+define bot refuse to respond
+    "I'm sorry, I cannot fulfill that request as it violates my security guidelines."
+
+define flow check jailbreak
+    $is_jailbreak = execute check_jailbreak
+    if $is_jailbreak
+        bot refuse to respond
+        stop
