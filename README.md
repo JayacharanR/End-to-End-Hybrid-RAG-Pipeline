@@ -12,15 +12,17 @@ WikiMind is a Tri-Modal Retrieval-Augmented Generation (RAG) pipeline designed t
 
 ## Tech Stack
 
-*   **Backend**: Python, FastAPI, LangGraph, NeMo Guardrails
-*   **Frontend**: Streamlit
-*   **Data Pipeline**: aiohttp, LangChain, text-embedding-3-small
-*   **Databases**: Qdrant (Vector & Sparse Storage), Redis (Semantic Caching via RedisVL), MongoDB/Local (Document Storage)
-*   **Observability**: Langfuse
-*   **Deployment**: Docker Compose
+| Component | Technologies |
+| :--- | :--- |
+| **Backend** | Python, FastAPI, LangGraph, NeMo Guardrails |
+| **Frontend** | Streamlit |
+| **Data Pipeline** | aiohttp, LangChain, text-embedding-3-small |
+| **Databases** | Qdrant (Vector & Sparse Storage), Redis (Semantic Caching via RedisVL), MongoDB/Local (Document Storage) |
+| **Observability** | Langfuse |
+| **Deployment** | Docker Compose |
 
-## Documentation Requirements
-Per project guidelines, all documentation, code, and commit messages must maintain a strict professional and technical tone.
+## License
+This project is licensed under the [MIT License](LICENSE).
 
----
-*Note: The project architecture has recently been revised to support containerized microservices. The codebase is currently undergoing transition.*
+## Author
+**Jayacharan R**
