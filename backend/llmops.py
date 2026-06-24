@@ -1,7 +1,6 @@
 import os
 from typing import Dict, Any
-from langfuse.decorators import observe
-from langfuse import Langfuse
+from langfuse import observe, Langfuse
 from nemoguardrails import LLMRails, RailsConfig
 
 # Initialize Langfuse Client to validate configuration

@@ -1,14 +1,55 @@
 [project]
-name = "hyrid-rag-pipeline"
+name = "wikimind"
 version = "0.1.0"
-description = "Add your description here"
+description = "WikiMind: Production-Grade Hybrid Agentic RAG Pipeline trained on the complete English Wikipedia dataset. Combines Dense Vector, Sparse BM25, and Vectorless PageIndex retrieval with LangGraph CRAG/Self-RAG orchestration."
 readme = "README.md"
-requires-python = ">=3.13"
+license = {text = "MIT"}
+requires-python = ">=3.11,<3.14"
 dependencies = [
-    "datasets>=5.0.0",
+    # LLM Framework and Orchestration
+    "langchain>=0.3.0",
+    "langchain-community>=0.3.0",
+    "langchain-openai>=0.3.0",
+    "langgraph>=0.4.0",
+
+    # Web Framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "sse-starlette>=2.0.0",
+    "pydantic-settings>=2.7.0",
+
+    # Vector Database and Embeddings
+    "qdrant-client[fastembed]>=1.18.0",
     "fastembed>=0.8.0",
-    "langchain>=1.3.11",
-    "langchain-community>=0.4.2",
+
+    # Caching
+    "redisvl>=0.4.0",
+    "redis>=5.0.0",
+
+    # Observability and Guardrails
+    "langfuse>=4.10.0",
+    "nemoguardrails>=0.22.0",
+    "prometheus-fastapi-instrumentator>=7.0.0",
+
+    # Retrieval
+    "rank_bm25>=0.2.2",
+    "flashrank>=0.2.0",
+
+    # Data Pipeline
+    "datasets>=3.0.0",
+    "aiohttp>=3.11.0",
+
+    # External Search
+    "tavily-python>=0.5.0",
+
+    # Utilities
     "python-dotenv>=1.2.2",
-    "qdrant-client>=1.18.0",
+    "httpx>=0.28.0",
 ]
+
+[project.urls]
+Repository = "https://github.com/JayacharanR/End-to-End-Hybrid-RAG-Pipeline"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.backends"
