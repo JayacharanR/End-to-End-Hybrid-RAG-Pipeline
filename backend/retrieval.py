@@ -130,3 +130,60 @@ async def hybrid_search(query: str, apply_reranker: bool = True) -> tuple[List[D
     except Exception as exc:
         logger.error("Hybrid search failed: %s", exc)
         return [], metadata
+
+
+# ---------------------------------------------------------------------------
+# Query Router
+# ---------------------------------------------------------------------------
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+
+ROUTER_PROMPT = ChatPromptTemplate.from_messages([
+    ("system", "You are an expert query router. Your task is to analyze a user's question and classify it as either 'simple' or 'complex'.\n"
+               "A 'simple' query asks for a direct fact, definition, or a specific entity's property (e.g., 'When was Python created?', 'Capital of France?').\n"
+               "A 'complex' query requires multi-hop reasoning, synthesis across multiple topics, deep conceptual explanation, or structural extraction (e.g., 'Compare the economic impacts of X and Y', 'What are the main arguments in Z?').\n"
+               "Respond with EXACTLY ONE WORD: either 'simple' or 'complex'."),
+    ("user", "Query: {query}\nClassification:")
+])
+
+
+async def route_query(query: str) -> str:
+    """Classify a query as 'simple' or 'complex' to determine the retrieval path.
+    
+    Simple queries can be routed directly to hybrid_search to save latency and cost.
+    Complex queries should be routed through the full CRAG pipeline with Query 
+    Expansion and PageIndex structural extraction.
+    
+    Args:
+        query: The user's search query.
+        
+    Returns:
+        String: 'simple' or 'complex'. Defaults to 'complex' on failure to be safe.
+    """
+    settings = get_settings()
+    llm = ChatOpenAI(
+        model=settings.openai_model,
+        api_key=settings.openai_api_key,
+        temperature=0.0,
+        max_tokens=10
+    )
+    
+    chain = ROUTER_PROMPT | llm
+    
+    try:
+        res = await chain.ainvoke({"query": query})
+        content = res.content if hasattr(res, "content") else str(res)
+        classification = content.strip().lower()
+        
+        if "simple" in classification:
+            logger.info("Query routed as 'simple': %s", query[:60])
+            return "simple"
+        else:
+            logger.info("Query routed as 'complex': %s", query[:60])
+            return "complex"
+            
+    except Exception as exc:
+        logger.warning("Query routing failed, defaulting to 'complex': %s", exc)
+        return "complex"
+
