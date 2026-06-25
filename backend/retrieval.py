@@ -13,17 +13,36 @@ from backend.config import get_settings
 from backend.qdrant_client import get_async_qdrant
 from data_pipeline.ingest import get_dense_model, get_sparse_model
 
+from flashrank import Ranker, RerankRequest
+
 logger = logging.getLogger(__name__)
 
+# ---------------------------------------------------------------------------
+# Cross-Encoder Reranker
+# ---------------------------------------------------------------------------
 
-async def hybrid_search(query: str) -> List[Dict[str, Any]]:
+_ranker: Optional[Ranker] = None
+
+
+def get_reranker() -> Ranker:
+    """Lazy initialize the FlashRank cross-encoder model."""
+    global _ranker
+    if _ranker is None:
+        settings = get_settings()
+        logger.info("Initializing FlashRank reranker model: %s", settings.reranker_model)
+        _ranker = Ranker(model_name=settings.reranker_model, cache_dir="data/flashrank_cache")
+    return _ranker
+
+
+async def hybrid_search(query: str, apply_reranker: bool = True) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """Execute a hybrid dense+sparse search using Qdrant Prefetch API for RRF.
     
     Args:
         query: The natural language search query.
+        apply_reranker: Whether to apply the cross-encoder reranker.
         
     Returns:
-        List of candidate documents with their RRF scores.
+        Tuple of (List of candidate documents, Metadata dict).
     """
     settings = get_settings()
     qdrant = get_async_qdrant()
@@ -56,6 +75,11 @@ async def hybrid_search(query: str) -> List[Dict[str, Any]]:
     
     logger.debug("Executing Qdrant Universal Query API with RRF fusion (k=%d)", settings.rrf_k)
     
+    metadata = {
+        "rrf_candidates": 0,
+        "reranker_applied": apply_reranker,
+    }
+    
     try:
         # The query method with multiple prefetches performs RRF by default
         results = await qdrant.query_points(
@@ -70,17 +94,39 @@ async def hybrid_search(query: str) -> List[Dict[str, Any]]:
         documents = []
         for point in results.points:
             documents.append({
-                "id": point.id,
-                "score": point.score,
+                "id": str(point.id),
+                "score": float(point.score),
                 "title": point.payload.get("title", ""),
-                "content": point.payload.get("page_content", ""),
+                "text": point.payload.get("page_content", ""), # FlashRank expects "text" key
                 "url": point.payload.get("url", ""),
                 "chunk_index": point.payload.get("chunk_index", 0),
             })
             
-        logger.info("Hybrid search returned %d candidates.", len(documents))
-        return documents
+        metadata["rrf_candidates"] = len(documents)
+        logger.info("Hybrid search returned %d RRF candidates.", len(documents))
+        
+        if apply_reranker and documents:
+            logger.debug("Applying FlashRank reranker...")
+            ranker = get_reranker()
+            rerank_request = RerankRequest(query=query, passages=documents)
+            reranked_results = ranker.rerank(rerank_request)
+            
+            # FlashRank returns the list sorted by score (descending)
+            # and modifies the dicts in place (or returns new ones) with a "score" key
+            top_documents = reranked_results[:settings.reranker_top_k]
+            
+            # Map "text" back to "content" for consistency with other parts of the app
+            for doc in top_documents:
+                doc["content"] = doc.pop("text")
+                
+            logger.info("Reranked to top %d candidates.", len(top_documents))
+            return top_documents, metadata
+        else:
+            # Re-map "text" to "content" if not reranking
+            for doc in documents:
+                doc["content"] = doc.pop("text")
+            return documents, metadata
         
     except Exception as exc:
         logger.error("Hybrid search failed: %s", exc)
-        return []
+        return [], metadata
