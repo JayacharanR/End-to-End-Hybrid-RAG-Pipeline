@@ -120,9 +120,10 @@ async def expand_query(query: str, strategies: QueryStrategies) -> List[str]:
         
     settings = get_settings()
     llm = ChatOpenAI(
-        model=settings.openai_model,
-        api_key=settings.openai_api_key,
-        temperature=0.0
+        model=settings.openrouter_model,
+        api_key=settings.openrouter_api_key,
+        base_url="https://openrouter.ai/api/v1",
+        temperature=0.2
     )
     
     logger.info("Applying active query expansion strategies...")

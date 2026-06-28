@@ -130,8 +130,9 @@ async def node_grade_documents(state: AgentState) -> Dict:
         
     settings = get_settings()
     llm = ChatOpenAI(
-        model=settings.openai_model,
-        api_key=settings.openai_api_key,
+        model=settings.openrouter_model,
+        api_key=settings.openrouter_api_key,
+        base_url="https://openrouter.ai/api/v1",
         temperature=0.0
     )
     
@@ -228,8 +229,9 @@ async def node_check_hallucination(state: AgentState) -> Dict:
     
     settings = get_settings()
     llm = ChatOpenAI(
-        model=settings.openai_model,
-        api_key=settings.openai_api_key,
+        model=settings.openrouter_model,
+        api_key=settings.openrouter_api_key,
+        base_url="https://openrouter.ai/api/v1",
         temperature=0.0
     )
     
@@ -264,8 +266,9 @@ async def node_check_answer_quality(state: AgentState) -> Dict:
     
     settings = get_settings()
     llm = ChatOpenAI(
-        model=settings.openai_model,
-        api_key=settings.openai_api_key,
+        model=settings.openrouter_model,
+        api_key=settings.openrouter_api_key,
+        base_url="https://openrouter.ai/api/v1",
         temperature=0.0
     )
     

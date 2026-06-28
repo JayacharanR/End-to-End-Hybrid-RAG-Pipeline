@@ -25,9 +25,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # --- OpenAI -----------------------------------------------------------
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
+    # --- OpenRouter -------------------------------------------------------
+    openrouter_api_key: str = ""
+    openrouter_model: str = "meta-llama/llama-3-8b-instruct:free"
 
     # --- Embedding Model --------------------------------------------------
     # Dense embedding model used for semantic vector generation.
