@@ -133,6 +133,11 @@ async def listen_to_stream():
     settings = get_settings()
     stream_url = settings.wiki_stream_url
     
+    # Initialize Qdrant collection if it doesn't exist
+    from backend.qdrant_client import init_collection
+    # Run sync init_collection in thread
+    await asyncio.to_thread(init_collection)
+    
     retry_count = 0
     
     while True:

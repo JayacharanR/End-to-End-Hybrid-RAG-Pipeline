@@ -79,13 +79,7 @@ async def check_live_revisions(session: aiohttp.ClientSession, titles: List[str]
     return stale_titles
 
 
-from langfuse.decorators import observe, langfuse_context
-
-@observe(name="state_reconciliation_run")
 async def run_reconciliation_cycle():
-    langfuse_context.update_current_trace(
-        metadata={"sample_size": SAMPLE_SIZE}
-    )
     logger.info("Beginning reconciliation cycle...")
     try:
         titles = await get_random_titles_from_qdrant(limit=SAMPLE_SIZE)
@@ -106,13 +100,8 @@ async def run_reconciliation_cycle():
                     await process_event(fake_event, session)
             else:
                 logger.info("No drift detected in sample.")
-                
-            langfuse_context.update_current_trace(
-                output={"stale_count": len(stale_titles), "sample_count": len(titles)}
-            )
     except Exception as exc:
         logger.error("Reconciliation cycle failed: %s", exc)
-        langfuse_context.update_current_trace(level="ERROR", status_message=str(exc))
 
 
 async def reconcile_loop():

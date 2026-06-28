@@ -78,26 +78,13 @@ def init_observability() -> None:
 
 
 def get_langfuse_handler() -> Optional[LangfuseCallbackHandler]:
-    """Create a new LangfuseCallbackHandler for LangGraph/LangChain tracing.
-
-    Each invocation creates a fresh handler instance so that every agent
-    run is tracked as a distinct trace in Langfuse.
-
-    Returns:
-        Optional[LangfuseCallbackHandler]: Callback handler, or None if
-        Langfuse is not configured.
-    """
     secret_key = os.getenv("LANGFUSE_SECRET_KEY", "")
     public_key = os.getenv("LANGFUSE_PUBLIC_KEY", "")
 
-    if not secret_key or not public_key:
+    if not secret_key or not public_key or "placeholder" in secret_key or "placeholder" in public_key:
         return None
 
-    return LangfuseCallbackHandler(
-        secret_key=secret_key,
-        public_key=public_key,
-        host=os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com"),
-    )
+    return LangfuseCallbackHandler()
 
 
 # ---------------------------------------------------------------------------
