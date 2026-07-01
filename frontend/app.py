@@ -25,20 +25,18 @@ API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 def configure_sidebar() -> Dict[str, Any]:
     """Render the configuration sidebar and return the selected strategies."""
-    st.sidebar.title("⚙️ WikiMind Configuration")
+    st.sidebar.title("WikiMind Configuration")
     
     st.sidebar.subheader("Retrieval Architecture")
-    st.sidebar.markdown("Configure the active Tri-Brid components.")
-    
-    use_page_index = st.sidebar.toggle(
-        "Enable PageIndex (L3)", 
-        value=True, 
-        help="Use LLM structural navigation to extract full sections from Wikipedia."
+    st.sidebar.markdown(
+        "WikiMind uses **Search-Scoped Hybrid RAG**: Tavily identifies the "
+        "relevant Wikipedia articles, then Qdrant hybrid search (Dense + "
+        "Sparse + RRF + Reranker) extracts precise chunks from those articles."
     )
     
     st.sidebar.divider()
     
-    st.sidebar.subheader("Query Expansion (L2)")
+    st.sidebar.subheader("Query Expansion")
     st.sidebar.markdown("Toggle parallel expansion strategies.")
     
     multi_query = st.sidebar.toggle(
@@ -76,7 +74,7 @@ def configure_sidebar() -> Dict[str, Any]:
                 status = data.get("status")
                 st.sidebar.success(f"Status: {status.upper()}")
                 for comp in data.get("components", []):
-                    icon = "✅" if comp.get("healthy") else "❌"
+                    icon = "OK" if comp.get("healthy") else "FAIL"
                     latency = comp.get("latency_ms", "N/A")
                     st.sidebar.text(f"{icon} {comp.get('name')}: {latency}ms")
             else:
@@ -89,7 +87,6 @@ def configure_sidebar() -> Dict[str, Any]:
         "hyde": hyde,
         "step_back": step_back,
         "decomposition": decomposition,
-        "page_index": use_page_index,
     }
 
 
@@ -169,8 +166,8 @@ def main():
         layout="wide",
     )
     
-    st.title("🧠 WikiMind RAG Pipeline")
-    st.markdown("Ask complex questions. The agent will orchestrate Hybrid Search, RRF, and PageIndex structural extraction to answer them.")
+    st.title("WikiMind RAG Pipeline")
+    st.markdown("Ask complex questions. The agent uses Search-Scoped Hybrid RAG: Tavily identifies Wikipedia articles, then Qdrant hybrid search extracts precise answers.")
     
     # Sidebar config
     strategies = configure_sidebar()

@@ -1,7 +1,9 @@
 models:
   - type: main
     engine: openai
-    model: gpt-4o-mini
+    model: gpt-oss-20b:free
+    parameters:
+      api_base: https://openrouter.ai/api/v1
 
 rails:
   dialog:

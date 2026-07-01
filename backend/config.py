@@ -56,10 +56,15 @@ class Settings(BaseSettings):
     tavily_api_key: str = ""
 
     # --- Retrieval Parameters ---------------------------------------------
-    retrieval_top_k: int = 50
-    rrf_k: int = 60
+    retrieval_top_k: int = 10
+    rrf_k: int = 20
     reranker_top_k: int = 5
     reranker_model: str = "ms-marco-MiniLM-L-12-v2"
+
+    # --- Agent Graph Parameters ----------------------------------------------
+    max_graph_steps: int = 12
+    max_generation_docs: int = 5
+    tavily_max_results: int = 3
 
     # --- Application Server -----------------------------------------------
     app_host: str = "0.0.0.0"

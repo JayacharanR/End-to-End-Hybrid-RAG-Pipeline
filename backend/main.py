@@ -194,15 +194,17 @@ async def chat_endpoint(request: ChatRequest):
         initial_state: AgentState = {
             "query": query,
             "expanded_queries": [],
+            "target_articles": [],
             "documents": [],
+            "web_snippets": [],
             "generation": "",
-            "web_results": [],
             "retrieval_grade": "",
             "hallucination_grade": "",
             "answer_grade": "",
             "steps": 0,
             "active_strategies": request.strategies,
-            "retry_count": 0,
+            "hallucination_retries": 0,
+            "answer_retries": 0,
         }
         
         # Setup Langfuse callbacks
